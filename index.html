@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<!--
+  UNOFFICIAL PREVIEW. Not a Coronado Swim Team Elite website.
+  A replica of https://www.swimcste.com/page/competitive-team/weekly-practice-schedule with the
+  two hand-typed tables and the "Exceptions" list replaced by a live Pool Relay calendar.
+  Every practice day, time, pool and change on this page is read from Pool Relay (cste.js).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Weekly Practice Schedule &mdash; Coronado Swim Team Elite (Pool Relay preview)</title>
+<meta name="description" content="Unofficial preview of the CSTE weekly practice schedule as a live Pool Relay calendar, with sign-up for each group's updates.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --gold:   #f2a900;   /* the site's own accent */
+    --gold-d: #b97f00;
+    --navy:   #0d2340;
+    --navy-2: #163a63;
+    --ink:    #333;
+    --muted:  #66707a;
+    --rule:   #e1e5ea;
+    --wash:   #f5f7fa;
+    --live:   #1f8a5b;
+    --font:   "Source Sans 3", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    --cond:   "Oswald", "Arial Narrow", Arial, sans-serif;
+  }
+  *,*::before,*::after{ box-sizing:border-box }
+  html{ -webkit-text-size-adjust:100% }
+  body{ margin:0; background:#fff; color:var(--ink); font-family:var(--font); font-size:17px; line-height:1.6 }
+  a{ color:var(--navy-2) }
+
+  .preview-note{
+    background:#222; color:#fff; font-size:14px; line-height:1.5; padding:9px 18px; text-align:center;
+  }
+  .preview-note b{ color:var(--gold) }
+  .preview-note a{ color:#fff }
+
+  .topbar{ background:var(--navy); color:#fff; display:flex; align-items:center; gap:10px; padding:6px 20px; font-size:13px }
+  .topbar a{ color:#cfd8e3; text-decoration:none }
+  .topbar .signin{ margin-left:auto; border:1px solid rgba(255,255,255,.3); border-radius:3px; padding:2px 12px }
+
+  header.site{ background:var(--navy); padding:14px 20px 18px; text-align:center; border-bottom:4px solid var(--gold) }
+  .wordmark{ display:inline-flex; align-items:center; gap:14px; text-decoration:none; color:#fff }
+  .wordmark .badge{
+    width:62px; height:62px; flex:none; border-radius:50%; border:3px solid var(--gold);
+    display:grid; place-items:center; font-family:var(--cond); font-weight:700; font-size:19px;
+    letter-spacing:.04em; color:var(--gold); background:var(--navy-2);
+  }
+  .wordmark .words{ text-align:left }
+  .wordmark .big{ display:block; font-family:var(--cond); font-weight:700; font-size:clamp(24px,4.6vw,38px); line-height:1.05; letter-spacing:.03em; text-transform:uppercase }
+  .wordmark .small{ display:block; font-family:var(--cond); font-weight:500; font-size:clamp(11px,1.7vw,14px); letter-spacing:.28em; text-transform:uppercase; color:var(--gold) }
+
+  nav.site{ background:#fff; border-bottom:1px solid var(--rule); display:flex; flex-wrap:wrap; justify-content:center; gap:4px 22px; padding:10px 20px }
+  nav.site a{ color:var(--navy); text-decoration:none; font-family:var(--cond); font-weight:500; font-size:14px; letter-spacing:.08em; text-transform:uppercase; padding:4px 0 }
+  nav.site a.here{ box-shadow:inset 0 -3px 0 var(--gold) }
+
+  .wrap{ max-width:1040px; margin:0 auto; padding:0 20px }
+  h1.page{ font-family:var(--cond); font-weight:600; font-size:clamp(30px,5vw,42px); color:var(--navy); margin:30px 0 6px; text-transform:uppercase; letter-spacing:.02em }
+  .lede{ margin:0 0 18px; font-size:18px; color:#444; max-width:760px }
+  h2{ font-family:var(--cond); font-weight:600; color:var(--navy); text-transform:uppercase; letter-spacing:.03em }
+
+  /* Live notices from the feed: empty and hidden when there are none */
+  #notices:empty{ display:none }
+  .notice{ border-left:5px solid #c0392b; background:#fdf2f0; padding:12px 16px; margin:0 0 10px; border-radius:3px }
+  .notice b{ color:#922b21 }
+
+  /* Subscribe call-out */
+  .follow{
+    display:grid; grid-template-columns:auto 1fr; gap:14px 18px; align-items:start;
+    background:var(--navy); color:#fff; border-radius:6px; padding:20px 22px; margin:6px 0 0;
+  }
+  .follow .bell{ width:44px; height:44px; border-radius:50%; background:var(--gold); color:var(--navy); display:grid; place-items:center; font-weight:700; font-size:22px }
+  .follow h2{ color:#fff; margin:0 0 4px; font-size:22px }
+  .follow p{ margin:0 0 6px; color:#d9e2ec }
+  .follow ol{ margin:6px 0 0; padding-left:20px; color:#fff }
+  .follow .pill{ display:inline-block; background:#fff; color:var(--navy); border-radius:999px; padding:0 10px; font-weight:700; font-size:14px }
+
+  .cal-band{ background:var(--wash); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); margin:26px 0 0; padding:24px 20px 28px }
+  .cal-inner{ max-width:1360px; margin:0 auto }
+  .cal-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:10px }
+  .cal-head h2{ margin:0; font-size:26px }
+  .live{ font-family:var(--cond); font-size:12px; font-weight:600; letter-spacing:.12em; text-transform:uppercase; color:#fff; background:var(--live); padding:3px 10px; border-radius:3px }
+  .frame{ border:1px solid var(--rule); border-radius:5px; overflow:hidden; background:#fff; box-shadow:0 10px 28px rgba(13,35,64,.10) }
+  .frame iframe{ display:block; width:100%; height:820px; border:0 }
+  @media (max-width:760px){ .frame iframe{ height:640px } }
+  .cal-foot{ font-size:15px; color:var(--muted); margin:10px 0 0 }
+
+  /* Group cards: names and ages typed; every time and pool on them is live */
+  .groups h2{ font-size:26px; margin:34px 0 4px }
+  .groups > p{ color:var(--muted); margin:0 0 16px }
+  .venue{ margin:0 0 22px }
+  .venue h3{ font-family:var(--cond); font-weight:500; font-size:19px; color:var(--navy); margin:0 0 2px; letter-spacing:.02em }
+  .venue .addr{ font-size:14px; color:var(--muted); margin:0 0 10px }
+  .cards{ display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:14px }
+  .card{ border:1px solid var(--rule); border-top:5px solid var(--c,#999); border-radius:5px; padding:14px 16px 12px; background:#fff }
+  .card h4{ margin:0; font-family:var(--cond); font-weight:600; font-size:20px; color:var(--navy); text-transform:uppercase; letter-spacing:.03em }
+  .card .who{ font-size:14px; color:var(--muted); margin:0 0 10px }
+  .card .next{ background:var(--wash); border-radius:4px; padding:8px 10px; font-size:15px; margin:0 0 8px }
+  .card .next b{ display:block; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--muted) }
+  .card ul{ list-style:none; margin:0; padding:0; font-size:15px }
+  .card li{ display:flex; gap:8px; padding:3px 0; border-bottom:1px dashed var(--rule) }
+  .card li:last-child{ border-bottom:0 }
+  .card li .d{ width:88px; flex:none; font-weight:600 }
+  .card li .w{ color:var(--muted); margin-left:auto; text-align:right; font-size:14px }
+  .card .none{ color:var(--muted); font-size:14px; font-style:italic }
+  .card .foot{ font-size:13px; color:var(--muted); margin:8px 0 0 }
+  .loading{ color:var(--muted); font-style:italic }
+
+  /* Their page, quoted */
+  .quote{ background:var(--wash); border:1px solid var(--rule); border-radius:5px; padding:20px 24px; margin:30px 0 0 }
+  .quote h2{ margin:0 0 4px; font-size:22px }
+  .quote .src{ font-size:14px; color:var(--muted); margin:0 0 14px }
+  .quote .struck{ color:var(--muted); text-decoration:line-through }
+  .quote .ex{ display:grid; grid-template-columns:1fr; gap:10px }
+  .xrow{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; background:#fff; border:1px solid var(--rule); border-radius:4px; padding:10px 14px; font-size:15px }
+  @media (max-width:700px){ .xrow{ grid-template-columns:1fr } }
+  .xrow .them{ color:var(--muted) }
+  .xrow .them p{ margin:0 }
+  .xrow .them p:first-child{ font-weight:600; color:#555 }
+  .xrow.past .them{ text-decoration:line-through }
+  .xrow .now{ font-size:14px }
+  .xrow .now b{ display:block; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--live) }
+  .xrow.past .now b{ color:var(--muted) }
+  .xrow .now ul{ margin:2px 0 0; padding-left:18px }
+  .quote .why{ margin:16px 0 0; padding-top:12px; border-top:1px solid var(--rule); color:#555; font-size:15px }
+
+  .replaces{ border-left:4px solid var(--gold); padding:16px 22px; margin:30px 0 0 }
+  .replaces h2{ margin:0 0 10px; font-size:22px }
+  .replaces ul{ margin:0; padding-left:20px; color:#555 }
+  .replaces li{ margin-bottom:9px }
+
+  footer.site{ margin-top:44px; background:var(--navy); color:#fff; padding:28px 20px; font-size:15px; border-top:4px solid var(--gold) }
+  footer.site .in{ max-width:1040px; margin:0 auto }
+  footer.site a{ color:#fff }
+  footer.site .fine{ max-width:1040px; margin:18px auto 0; padding-top:14px; border-top:1px solid rgba(255,255,255,.25); font-size:13px; color:#b8c6d6 }
+  @media (max-width:760px){
+    body{ font-size:16px } nav.site{ gap:2px 14px } nav.site a{ font-size:12px }
+    .follow{ grid-template-columns:1fr } .follow .bell{ display:none }
+    .wordmark .badge{ width:48px; height:48px; font-size:15px }
+  }
+</style>
+</head>
+<body>
+
+<div class="preview-note" role="note">
+  <b>Unofficial preview &mdash; not a Coronado Swim Team Elite website.</b>
+  A mock-up of
+  <a href="https://www.swimcste.com/page/competitive-team/weekly-practice-schedule" target="_blank" rel="noopener noreferrer">the club&rsquo;s Weekly Practice Schedule page</a>
+  with the schedule shown as a live Pool Relay calendar.
+</div>
+
+<div class="topbar">
+  <a href="https://x.com/SwimCSTE" target="_blank" rel="noopener noreferrer">X</a>
+  <a href="https://www.instagram.com/swimcste/" target="_blank" rel="noopener noreferrer">Instagram</a>
+  <span class="signin">Sign in</span>
+</div>
+
+<header class="site">
+  <a class="wordmark" href="https://www.swimcste.com/page/home" target="_blank" rel="noopener noreferrer">
+    <span class="badge" aria-hidden="true">CSTE</span>
+    <span class="words">
+      <span class="big">Coronado Swim Team Elite</span>
+      <span class="small">Competitive swimming &middot; Coronado &amp; La Jolla</span>
+    </span>
+  </a>
+</header>
+
+<nav class="site" aria-label="Site">
+  <a href="https://www.swimcste.com/page/home" target="_blank" rel="noopener noreferrer">Home</a>
+  <a href="https://www.swimcste.com/page/about/our-vision--mission" target="_blank" rel="noopener noreferrer">About</a>
+  <a href="https://www.swimcste.com/page/competitive-team/group-descriptions" target="_blank" rel="noopener noreferrer">Swim Club Groups</a>
+  <a class="here" href="https://www.swimcste.com/page/competitive-team/weekly-practice-schedule" target="_blank" rel="noopener noreferrer">Weekly Schedule</a>
+  <a href="https://www.swimcste.com/page/competitive-team/meet-schedule" target="_blank" rel="noopener noreferrer">Meet Schedule</a>
+  <a href="https://www.swimcste.com/page/cste-summer-programs" target="_blank" rel="noopener noreferrer">Seasonal Programs</a>
+  <a href="https://www.swimcste.com/page/parent-resources" target="_blank" rel="noopener noreferrer">Club Resources</a>
+  <a href="https://www.gomotionapp.com/team/swimcoronado/page/system/contactus" target="_blank" rel="noopener noreferrer">Contact Us</a>
+</nav>
+
+<main>
+<div class="wrap">
+  <h1 class="page">Weekly Practice Schedule</h1>
+  <p class="lede">Every practice for every group, at both of our pools, on one calendar that is
+    always current. Each block names its pool, so you never have to work out which table
+    you are reading.</p>
+
+  <div id="notices" aria-live="polite"></div>
+
+  <section class="follow" aria-labelledby="follow-h">
+    <div class="bell" aria-hidden="true">&#10003;</div>
+    <div>
+      <h2 id="follow-h">Get updates for your swimmer&rsquo;s group</h2>
+      <p>When your group&rsquo;s practice moves, is cut short, or the pool closes, you get one
+        email about that group &mdash; not every message for the whole club.</p>
+      <ol>
+        <li>In the calendar below, press <span class="pill">Subscribe</span> at the right end of the
+          filter row.</li>
+        <li>Pick your swimmer&rsquo;s group, enter your email and press <span class="pill">Send updates</span>. Confirm from the email you receive.</li>
+        <li>Optional: add the group to Apple, Google or Outlook Calendar from the same panel.</li>
+      </ol>
+    </div>
+  </section>
+</div>
+
+<section class="cal-band" aria-labelledby="cal-h">
+  <div class="cal-inner">
+    <div class="cal-head">
+      <h2 id="cal-h">Practice calendar</h2>
+      <span class="live">Live</span>
+    </div>
+    <div class="frame">
+      <iframe src="https://www.poolrelay.com/embed/EbEgsHHb3IfFI1rQYekJ7F"
+              title="Coronado Swim Team Elite practice schedule (Pool Relay)" loading="lazy"></iframe>
+    </div>
+    <p class="cal-foot">Tap a group in the <strong>Filter</strong> row to see only that group.
+      The arrows move between weeks. On a phone the same calendar opens as a list &mdash;
+      no scrolling sideways.</p>
+  </div>
+</section>
+
+<div class="wrap groups" id="groups">
+  <h2>Your group at a glance</h2>
+  <p>The next practice and the coming week for each group, read from the same calendar.</p>
+
+  <div class="venue">
+    <h3>La Jolla &mdash; Canyonview Aquatic Center at UC San Diego</h3>
+    <p class="addr" data-fac="fac:canyonview-aquatic-center"></p>
+    <div class="cards">
+      <div class="card" data-group="grp:senior">
+        <h4>Senior</h4><p class="who">Ages 14+ &middot; 6 days a week</p>
+        <div class="slot loading">Loading the live schedule&hellip;</div>
+        <p class="foot">Strength &amp; conditioning and extended activation happen on deck before the swim.</p>
+      </div>
+      <div class="card" data-group="grp:age-group-5">
+        <h4>Age Group</h4><p class="who">Ages 11&ndash;14 &middot; 5 days a week</p>
+        <div class="slot loading">Loading the live schedule&hellip;</div>
+        <p class="foot">Dryland follows the swim on deck.</p>
+      </div>
+      <div class="card" data-group="grp:age-group-development">
+        <h4>Age Group Development</h4><p class="who">Ages 11 &amp; under &middot; 4 days a week</p>
+        <div class="slot loading">Loading the live schedule&hellip;</div>
+        <p class="foot">Dryland comes before the swim on deck.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="venue">
+    <h3>Coronado &mdash; Coronado Community Center Pool</h3>
+    <p class="addr" data-fac="fac:coronado-aquatics-center"></p>
+    <div class="cards">
+      <div class="card" data-group="grp:age-group-1">
+        <h4>Age Group 1</h4><p class="who">5 days a week &middot; part-time 3 days available</p>
+        <div class="slot loading">Loading the live schedule&hellip;</div>
+      </div>
+      <div class="card" data-group="grp:age-group-2-2">
+        <h4>Age Group 2</h4><p class="who">5 days a week &middot; part-time 3 days available</p>
+        <div class="slot loading">Loading the live schedule&hellip;</div>
+      </div>
+      <div class="card" data-group="grp:age-group-3-2">
+        <h4>Age Group 3</h4><p class="who">4 days a week &middot; part-time 2 days available</p>
+        <div class="slot loading">Loading the live schedule&hellip;</div>
+      </div>
+    </div>
+  </div>
+  <p class="cal-foot">For part-time options, please
+    <a href="https://www.gomotionapp.com/team/swimcoronado/page/system/contactus" target="_blank" rel="noopener noreferrer">contact the club</a>.</p>
+
+  <section class="quote" aria-labelledby="quote-h">
+    <h2 id="quote-h">What the current page says</h2>
+    <p class="src">Quoted from
+      <a href="https://www.swimcste.com/page/competitive-team/weekly-practice-schedule" target="_blank" rel="noopener noreferrer">swimcste.com</a>
+      as it reads now, beside what the live calendar holds for the same day.</p>
+
+    <p class="struck">&ldquo;We will communicate changes, updates and other related club
+      information through WhatsApp. You will be asked to join one of our relevant WhatsApp
+      communities as a member of our Club.&rdquo;</p>
+    <p class="struck">&ldquo;Scroll left on mobile app&rdquo;</p>
+
+    <p style="margin:16px 0 8px;font-weight:600">&ldquo;Exceptions to the schedules above:&rdquo;</p>
+    <div class="ex" id="exceptions">
+      <div class="xrow" data-date="2026-09-07"><div class="them">
+        <p>Monday, September 7th (Labor Day)</p>
+        <p>Seniors Only, 1:15-2:00PM Dryland, and 2:00-3:30PM Swim.</p>
+        <p>No practice for other groups</p></div><div class="now"></div></div>
+      <div class="xrow" data-date="2026-09-23"><div class="them">
+        <p>Wednesday, September 23rd (Canyonview, Triton closed)</p>
+        <p>Age Group Development, 3:40-4:00PM Dryland, 4:00-4:45PM Swim</p>
+        <p>Age Group, 4:00-5:00PM Swim, 5:00-5:30PM Dryland</p>
+        <p>Seniors, 4:30-6:00PM Swim, 6:00-7:00PM Dryland</p></div><div class="now"></div></div>
+      <div class="xrow" data-date="2026-10-16"><div class="them">
+        <p>Friday, October 16th (Canyonview, Triton closed)</p>
+        <p>Age Group, 4:00-5:00PM Swim, 5:00-5:30PM Dryland</p>
+        <p>Seniors, 4:30-6:00PM Swim, 6:00-7:00PM Dryland</p></div><div class="now"></div></div>
+      <div class="xrow" data-date="2026-10-23"><div class="them">
+        <p>Friday, October 23rd (Canyonview, Triton closed)</p>
+        <p>Age Group, 4:00-5:00PM Swim, 5:00-5:30PM Dryland</p>
+        <p>Seniors, 4:30-6:00PM Swim, 6:00-7:00PM Dryland</p></div><div class="now"></div></div>
+      <div class="xrow" data-date="2026-10-30"><div class="them">
+        <p>Friday, October 30th (Canyonview, Triton closed)</p>
+        <p>Age Group, 4:00-5:00PM Swim, 5:00-5:30PM Dryland</p>
+        <p>Seniors, 4:30-6:00PM Swim, 6:00-7:00PM Dryland</p></div><div class="now"></div></div>
+      <div class="xrow" data-date="2026-11-11"><div class="them">
+        <p>Wednesday, November 11th (Veterans Day)</p>
+        <p>Seniors Only, 1:15-2:00PM Dryland, and 2:00-3:30PM Swim.</p>
+        <p>No practice for other groups</p></div><div class="now"></div></div>
+      <div class="xrow" data-date="2026-11-12"><div class="them">
+        <p>Thursday, November 12th (Canyonview, Triton closed)</p>
+        <p>Age Group Development, 3:40-4:00PM Dryland, 4:00-4:45PM Swim</p>
+        <p>Age Group, 4:00-5:00PM Swim, 5:00-5:30PM Dryland</p>
+        <p>Seniors, 4:30-6:00PM Swim, 6:00-7:00PM Dryland</p></div><div class="now"></div></div>
+    </div>
+    <p class="why" id="why">On the calendar there is no separate exceptions list: a changed day
+      simply <b>is</b> the changed day, in the week it happens, with its pool on it. Past
+      exceptions drop out on their own, and the families following a group hear about
+      a change the moment it is made &mdash; no WhatsApp thread to scroll back through.</p>
+  </section>
+
+  <section class="replaces" aria-labelledby="rep-h">
+    <h2 id="rep-h">What this replaces</h2>
+    <ul>
+      <li><strong>Two tables that never change, plus a list that always does.</strong> The weekly
+        pattern and its exceptions are one calendar here, so nobody has to merge them in their head.</li>
+      <li><strong>Exceptions that outlive their date.</strong> The list above keeps growing at the
+        bottom while its top slips into the past. The calendar only shows what is still ahead.</li>
+      <li><strong>&ldquo;Scroll left on mobile app.&rdquo;</strong> On a phone the calendar reads as
+        a list, one practice per line.</li>
+      <li><strong>Two pools, one page.</strong> La Jolla and Coronado groups sit side by side, and
+        every block names its pool &mdash; Triton, Marcikic or the Competition Pool.</li>
+      <li><strong>Updates in WhatsApp.</strong> A parent subscribes to just their swimmer&rsquo;s group
+        and gets an email when that group&rsquo;s practice moves. Club news can stay in WhatsApp.</li>
+      <li><strong>Pool closures can arrive with the pool&rsquo;s own schedule.</strong> UC San Diego&rsquo;s
+        and the City of Coronado&rsquo;s schedules are in Pool Relay too, so a closed pool can show on
+        the practice it affects instead of waiting for someone to retype the table.</li>
+    </ul>
+  </section>
+</div>
+</main>
+
+<footer class="site">
+  <div class="in">
+    <strong>Coronado Swim Team Elite</strong><br>
+    Competitive swimming at the Coronado Community Center Pool and Canyonview Aquatic Center, UC San Diego.<br>
+    <a href="https://www.swimcste.com/page/team-registration" target="_blank" rel="noopener noreferrer">Join our club</a> &middot;
+    <a href="https://www.swimcste.com/page/parent-resources/required-equipment" target="_blank" rel="noopener noreferrer">Required equipment</a> &middot;
+    <a href="https://www.gomotionapp.com/team/swimcoronado/page/system/contactus" target="_blank" rel="noopener noreferrer">Contact us</a>
+  </div>
+  <p class="fine">This page is an unofficial preview built to demonstrate an embedded
+    <a href="https://www.poolrelay.com" target="_blank" rel="noopener noreferrer">Pool Relay</a> calendar. It is not
+    operated by or affiliated with Coronado Swim Team Elite or San Diego Swim Club, and the
+    wordmark above is plain text, not the club&rsquo;s logo. For official practice times and changes see
+    <a href="https://www.swimcste.com" target="_blank" rel="noopener noreferrer">swimcste.com</a>.</p>
+</footer>
+
+<script src="cste.js"></script>
+</body>
+</html>

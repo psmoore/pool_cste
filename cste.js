@@ -1,4 +1,4 @@
-// Coronado Swim Team Elite, read live from Pool Relay.
+// San Diego Swim Club (formerly Coronado Swim Team Elite), read live from Pool Relay.
 //
 // Everything schedule-like on the page comes from here: each group's next practice and coming
 // week, the pool and lane count on each, any notice Pool Relay carries for these pools, and

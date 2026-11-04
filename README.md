@@ -1,10 +1,10 @@
-# Coronado Swim Team Elite weekly practice schedule — Pool Relay embed preview
+# San Diego Swim Club weekly practice schedule — Pool Relay embed preview
 
-An unofficial replica of the CSTE **Weekly Practice Schedule** page, rebuilt around a live
+An unofficial replica of San Diego Swim Club's **Weekly Practice Schedule** page (the club was formerly Coronado Swim Team Elite, CSTE, and its site is still swimcste.com), rebuilt around a live
 [Pool Relay](https://www.poolrelay.com) calendar, with sign-up so each swimmer's family can
 follow just their own group.
 
-**This is not a Coronado Swim Team Elite website.** The official page is
+**This is not a San Diego Swim Club website.** The official page is
 <https://www.swimcste.com/page/competitive-team/weekly-practice-schedule>. This is a
 working preview of one proposed change to it, and the page says so in a ribbon across the top.
 
@@ -32,7 +32,7 @@ working preview of one proposed change to it, and the page says so in a ribbon a
 ```html
 <iframe src="https://www.poolrelay.com/embed/EbEgsHHb3IfFI1rQYekJ7F"
         width="100%" height="820" style="border:0"
-        title="Coronado Swim Team Elite practice schedule"></iframe>
+        title="San Diego Swim Club practice schedule"></iframe>
 ```
 
 ## Nothing schedule-like is typed
@@ -51,7 +51,7 @@ come from the facility's published window; Coronado's from the club's posted pat
 
 ## Notes
 
-- The CSTE wordmark is plain CSS text, not the club's logo artwork.
+- The San Diego Swim Club wordmark is plain CSS text, not the club's logo artwork.
 - Navigation links point at the live site and open in a new tab. `noindex` is set.
 
 ## Local preview
